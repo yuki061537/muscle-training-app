@@ -4,6 +4,7 @@ import Log from './pages/Log'
 import Exercises from './pages/Exercises'
 import Programs from './pages/Programs'
 import Analytics from './pages/Analytics'
+import Help from './pages/Help'
 import { RestTimerProvider } from './context/RestTimerContext'
 import RestTimerBar from './components/RestTimerBar'
 
@@ -55,6 +56,20 @@ function ChartIcon(props: { className?: string }) {
   )
 }
 
+function HelpIcon(props: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className={props.className}>
+      <circle cx="12" cy="12" r="9" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9.75 9.5a2.25 2.25 0 114.06 1.33c-.53.66-1.31 1.06-1.31 1.92v.4"
+      />
+      <circle cx="12" cy="16.5" r="0.1" fill="currentColor" strokeWidth={1.5} />
+    </svg>
+  )
+}
+
 const navItems: { to: string; label: string; end?: boolean; icon: (p: { className?: string }) => ReactNode }[] = [
   { to: '/', label: '記録', end: true, icon: PencilIcon },
   { to: '/exercises', label: '種目', icon: DumbbellIcon },
@@ -70,10 +85,20 @@ export default function App() {
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent">
             <DumbbellIcon className="h-5 w-5 text-accent-foreground" />
           </div>
-          <div>
+          <div className="flex-1">
             <h1 className="text-base font-extrabold tracking-tight text-white">筋トレ記録</h1>
             <p className="text-xs text-zinc-500">今日もいい追い込みを</p>
           </div>
+          <NavLink
+            to="/help"
+            className={({ isActive }) =>
+              `flex h-9 w-9 items-center justify-center rounded-xl border transition-colors ${
+                isActive ? 'border-accent text-accent' : 'border-white/10 text-zinc-400'
+              }`
+            }
+          >
+            <HelpIcon className="h-5 w-5" />
+          </NavLink>
         </header>
 
         <main className="mx-auto max-w-md px-5 pb-44">
@@ -82,6 +107,7 @@ export default function App() {
             <Route path="/exercises" element={<Exercises />} />
             <Route path="/programs" element={<Programs />} />
             <Route path="/analytics" element={<Analytics />} />
+            <Route path="/help" element={<Help />} />
           </Routes>
         </main>
 
