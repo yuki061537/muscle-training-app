@@ -6,11 +6,11 @@ export interface MonsterStage {
 
 export const MONSTER_STAGES: MonsterStage[] = [
   { level: 1, name: 'たまご', minDays: 0 },
-  { level: 2, name: 'スライム', minDays: 1 },
-  { level: 3, name: 'マッチョスライム', minDays: 3 },
-  { level: 4, name: 'ベビードラゴン', minDays: 7 },
-  { level: 5, name: 'ドラゴン', minDays: 14 },
-  { level: 6, name: 'キングドラゴン', minDays: 30 },
+  { level: 2, name: 'ひよこ', minDays: 1 },
+  { level: 3, name: 'こいぬ', minDays: 3 },
+  { level: 4, name: 'ウルフ', minDays: 7 },
+  { level: 5, name: 'グリフォン', minDays: 14 },
+  { level: 6, name: 'フェニックス', minDays: 30 },
 ]
 
 export function getMonsterStage(totalDays: number): { current: MonsterStage; next: MonsterStage | null } {
