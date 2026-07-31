@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db'
 import { useRestTimer } from '../context/RestTimerContext'
+import TrainingMonster from '../components/TrainingMonster'
 
 const REST_PRESETS = [60, 90, 120, 180]
 const REST_MIN = 15
@@ -107,6 +108,8 @@ export default function Log() {
           className="rounded-xl border border-white/10 bg-surface-2 px-3 py-2 text-sm text-zinc-200 focus:border-accent focus:outline-none"
         />
       </div>
+
+      <TrainingMonster />
 
       <form
         onSubmit={saveBodyWeight}
