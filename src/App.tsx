@@ -5,6 +5,7 @@ import Exercises from './pages/Exercises'
 import Programs from './pages/Programs'
 import Analytics from './pages/Analytics'
 import Help from './pages/Help'
+import Export from './pages/Export'
 import { RestTimerProvider } from './context/RestTimerContext'
 import RestTimerBar from './components/RestTimerBar'
 
@@ -80,8 +81,8 @@ const navItems: { to: string; label: string; end?: boolean; icon: (p: { classNam
 export default function App() {
   return (
     <RestTimerProvider>
-      <div className="min-h-svh bg-canvas text-zinc-100">
-        <header className="mx-auto flex max-w-md items-center gap-2 px-5 pt-6 pb-4">
+      <div className="min-h-svh bg-canvas text-zinc-100 print:bg-white print:text-zinc-900">
+        <header className="mx-auto flex max-w-md items-center gap-2 px-5 pt-6 pb-4 print:hidden">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent">
             <DumbbellIcon className="h-5 w-5 text-accent-foreground" />
           </div>
@@ -101,17 +102,18 @@ export default function App() {
           </NavLink>
         </header>
 
-        <main className="mx-auto max-w-md px-5 pb-44">
+        <main className="mx-auto max-w-md px-5 pb-44 print:pb-0">
           <Routes>
             <Route path="/" element={<Log />} />
             <Route path="/exercises" element={<Exercises />} />
             <Route path="/programs" element={<Programs />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/help" element={<Help />} />
+            <Route path="/export" element={<Export />} />
           </Routes>
         </main>
 
-        <div className="fixed inset-x-0 bottom-0 z-20">
+        <div className="fixed inset-x-0 bottom-0 z-20 print:hidden">
           <RestTimerBar />
           <nav className="border-t border-white/5 bg-canvas/90 backdrop-blur-lg [padding-bottom:env(safe-area-inset-bottom)]">
             <ul className="mx-auto flex max-w-md px-3 py-2">
