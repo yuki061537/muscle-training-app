@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 
 interface RestTimerState {
   duration: number
@@ -32,44 +32,76 @@ export function RestTimerProvider({ children }: { children: ReactNode }) {
   const [duration, setDuration] = useState(90)
   const [remaining, setRemaining] = useState(0)
   const [running, setRunning] = useState(false)
+  // Absolute end timestamp (ms). Recomputing remaining from this on every
+  // tick/resync means the countdown stays correct even if setInterval gets
+  // throttled or fully suspended while the tab/PWA is backgrounded.
+  const endAtRef = useRef<number | null>(null)
+
+  function syncFromEndAt() {
+    if (endAtRef.current === null) return
+    const rem = Math.max(0, Math.round((endAtRef.current - Date.now()) / 1000))
+    setRemaining(rem)
+    if (rem <= 0) {
+      endAtRef.current = null
+      setRunning(false)
+      if (navigator.vibrate) navigator.vibrate([200, 100, 200])
+      playBeep()
+    }
+  }
 
   useEffect(() => {
     if (!running) return
-    const id = window.setInterval(() => {
-      setRemaining((prev) => {
-        if (prev <= 1) {
-          setRunning(false)
-          if (navigator.vibrate) navigator.vibrate([200, 100, 200])
-          playBeep()
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
+    const id = window.setInterval(syncFromEndAt, 1000)
     return () => window.clearInterval(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [running])
+
+  useEffect(() => {
+    // Resync the moment the app comes back to the foreground, instead of
+    // waiting for the next 1s tick (which may be delayed after backgrounding).
+    document.addEventListener('visibilitychange', syncFromEndAt)
+    window.addEventListener('focus', syncFromEndAt)
+    window.addEventListener('pageshow', syncFromEndAt)
+    return () => {
+      document.removeEventListener('visibilitychange', syncFromEndAt)
+      window.removeEventListener('focus', syncFromEndAt)
+      window.removeEventListener('pageshow', syncFromEndAt)
+    }
+  }, [])
 
   function start(seconds: number) {
     setDuration(seconds)
+    endAtRef.current = Date.now() + seconds * 1000
     setRemaining(seconds)
     setRunning(true)
   }
 
   function pause() {
+    if (endAtRef.current !== null) {
+      setRemaining(Math.max(0, Math.round((endAtRef.current - Date.now()) / 1000)))
+    }
+    endAtRef.current = null
     setRunning(false)
   }
 
   function resume() {
-    setRunning((prev) => prev || remaining > 0)
+    if (remaining <= 0) return
+    endAtRef.current = Date.now() + remaining * 1000
+    setRunning(true)
   }
 
   function reset() {
+    endAtRef.current = null
     setRunning(false)
     setRemaining(0)
   }
 
   function adjust(deltaSeconds: number) {
-    setRemaining((prev) => Math.max(0, prev + deltaSeconds))
+    const next = Math.max(0, remaining + deltaSeconds)
+    if (running) {
+      endAtRef.current = Date.now() + next * 1000
+    }
+    setRemaining(next)
   }
 
   return (
