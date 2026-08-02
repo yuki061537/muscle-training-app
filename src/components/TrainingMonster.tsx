@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db'
 import { computeStreak, getMonsterStage } from '../lib/monster'
 import MonsterArt, { type Expression } from './MonsterArt'
+import MonsterBackground from './MonsterBackground'
 
 export default function TrainingMonster() {
   const [expression, setExpression] = useState<Expression>('open')
@@ -39,6 +40,7 @@ export default function TrainingMonster() {
   return (
     <div className="mb-4 rounded-2xl border border-white/5 bg-surface p-4">
       <div className="relative mb-4 h-28 overflow-hidden rounded-xl bg-surface-2">
+        <MonsterBackground level={current.level} className="absolute inset-0 h-full w-full" />
         <div className="monster-walk">
           <div className="monster-bob">
             <MonsterArt level={current.level} expression={expression} className="h-16 w-16" />
