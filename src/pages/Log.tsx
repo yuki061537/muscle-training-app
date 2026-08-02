@@ -22,6 +22,26 @@ function clampRest(seconds: number) {
   return Math.min(REST_MAX, Math.max(REST_MIN, seconds))
 }
 
+interface SetGroup {
+  ids: number[]
+  exerciseId: number
+  weight: number
+  reps: number
+}
+
+function groupConsecutiveSets(sets: { id: number; exerciseId: number; weight: number; reps: number }[]): SetGroup[] {
+  const groups: SetGroup[] = []
+  for (const set of sets) {
+    const last = groups[groups.length - 1]
+    if (last && last.exerciseId === set.exerciseId && last.weight === set.weight && last.reps === set.reps) {
+      last.ids.push(set.id)
+    } else {
+      groups.push({ ids: [set.id], exerciseId: set.exerciseId, weight: set.weight, reps: set.reps })
+    }
+  }
+  return groups
+}
+
 export default function Log() {
   const [exerciseId, setExerciseId] = useState<number | ''>('')
   const [weight, setWeight] = useState('')
@@ -282,19 +302,24 @@ export default function Log() {
       )}
 
       <ul className="flex flex-col gap-2">
-        {todaysSets?.map((set) => (
+        {groupConsecutiveSets(todaysSets ?? []).map((group) => (
           <li
-            key={set.id}
+            key={group.ids[0]}
             className="flex items-center justify-between rounded-xl border border-white/5 bg-surface px-4 py-3"
           >
             <span className="text-sm text-zinc-200">
-              <span className="font-semibold text-white">{exerciseMap.get(set.exerciseId) ?? '不明な種目'}</span>
+              <span className="font-semibold text-white">{exerciseMap.get(group.exerciseId) ?? '不明な種目'}</span>
               <span className="mx-2 text-zinc-600">·</span>
-              <span className="font-mono text-accent">{set.weight}kg</span>
-              <span className="text-zinc-500"> × {set.reps}回</span>
+              <span className="font-mono text-accent">{group.weight}kg</span>
+              <span className="text-zinc-500"> × {group.reps}回</span>
+              {group.ids.length > 1 && (
+                <span className="ml-2 rounded-full bg-accent/15 px-2 py-0.5 text-xs font-bold text-accent">
+                  × {group.ids.length}セット
+                </span>
+              )}
             </span>
             <button
-              onClick={() => removeSet(set.id)}
+              onClick={() => removeSet(group.ids[0])}
               className="text-xs text-zinc-600 hover:text-red-400"
             >
               削除
