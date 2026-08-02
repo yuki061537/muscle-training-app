@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db'
-import { computeStreak, getMonsterStage } from '../lib/monster'
+import { computeEarnedFeed, computeStreak, getMonsterStage } from '../lib/monster'
 import MonsterArt, { type Expression } from './MonsterArt'
 import MonsterBackground from './MonsterBackground'
 
@@ -9,10 +9,8 @@ export default function TrainingMonster() {
   const [expression, setExpression] = useState<Expression>('open')
   const timeoutRef = useRef<number | undefined>(undefined)
 
-  const allDates = useLiveQuery(async () => {
-    const sets = await db.sets.toArray()
-    return sets.map((s) => s.date)
-  }, [])
+  const allSets = useLiveQuery(() => db.sets.toArray(), [])
+  const monsterState = useLiveQuery(() => db.monsterState.get(1), [])
 
   useEffect(() => {
     function scheduleBlink() {
@@ -29,13 +27,20 @@ export default function TrainingMonster() {
     return () => window.clearTimeout(timeoutRef.current)
   }, [])
 
-  if (!allDates) return null
+  if (!allSets) return null
 
-  const uniqueDays = new Set(allDates).size
-  const streak = computeStreak(allDates)
-  const { current, next } = getMonsterStage(uniqueDays)
-  const daysToNext = next ? next.minDays - uniqueDays : 0
-  const progress = next ? (uniqueDays - current.minDays) / (next.minDays - current.minDays) : 1
+  const fed = monsterState?.fed ?? 0
+  const earned = computeEarnedFeed(allSets)
+  const available = Math.max(0, earned - fed)
+  const streak = computeStreak(allSets.map((s) => s.date))
+  const { current, next } = getMonsterStage(fed)
+  const feedToNext = next ? next.minFed - fed : 0
+  const progress = next ? (fed - current.minFed) / (next.minFed - current.minFed) : 1
+
+  async function feedMonster() {
+    if (available <= 0) return
+    await db.monsterState.put({ id: 1, fed: fed + available })
+  }
 
   return (
     <div className="mb-4 rounded-2xl border border-white/5 bg-surface p-4">
@@ -56,20 +61,32 @@ export default function TrainingMonster() {
           </span>
         )}
       </div>
-      <p className="mb-2 text-xs text-zinc-500">累計トレーニング日数: {uniqueDays}日</p>
+
       {next ? (
         <>
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
+          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
             <div
               className="h-full rounded-full bg-accent transition-[width]"
               style={{ width: `${Math.min(1, Math.max(0, progress)) * 100}%` }}
             />
           </div>
-          <p className="mt-1 text-[11px] text-zinc-600">次の進化まであと{daysToNext}日</p>
+          <p className="mt-1 text-[11px] text-zinc-600">次の進化まであと餌{feedToNext}</p>
         </>
       ) : (
-        <p className="text-[11px] font-bold text-accent">最終形態!</p>
+        <p className="mt-2 text-[11px] font-bold text-accent">最終形態!</p>
       )}
+
+      <button
+        type="button"
+        onClick={feedMonster}
+        disabled={available <= 0}
+        className="mt-3 w-full rounded-xl bg-accent py-2.5 font-bold text-accent-foreground transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:active:scale-100"
+      >
+        {available > 0 ? `餌をあげる (${available})` : '餌がありません'}
+      </button>
+      <p className="mt-2 text-center text-[11px] text-zinc-600">
+        トレーニングで餌がたまります(合計{earned} · 使用済み{fed})
+      </p>
     </div>
   )
 }

@@ -1,25 +1,32 @@
 export interface MonsterStage {
   level: number
   name: string
-  minDays: number
+  minFed: number
 }
 
+// Thresholds are cumulative amount of feed given (not earned) to reach each stage.
 export const MONSTER_STAGES: MonsterStage[] = [
-  { level: 1, name: 'たまご', minDays: 0 },
-  { level: 2, name: 'ひよこ', minDays: 1 },
-  { level: 3, name: 'こいぬ', minDays: 3 },
-  { level: 4, name: 'ウルフ', minDays: 7 },
-  { level: 5, name: 'グリフォン', minDays: 14 },
-  { level: 6, name: 'フェニックス', minDays: 30 },
+  { level: 1, name: 'たまご', minFed: 0 },
+  { level: 2, name: 'ひよこ', minFed: 30 },
+  { level: 3, name: 'こいぬ', minFed: 120 },
+  { level: 4, name: 'ウルフ', minFed: 400 },
+  { level: 5, name: 'グリフォン', minFed: 1000 },
+  { level: 6, name: 'フェニックス', minFed: 2500 },
 ]
 
-export function getMonsterStage(totalDays: number): { current: MonsterStage; next: MonsterStage | null } {
+export function getMonsterStage(fed: number): { current: MonsterStage; next: MonsterStage | null } {
   let current = MONSTER_STAGES[0]
   for (const stage of MONSTER_STAGES) {
-    if (totalDays >= stage.minDays) current = stage
+    if (fed >= stage.minFed) current = stage
   }
   const next = MONSTER_STAGES[MONSTER_STAGES.indexOf(current) + 1] ?? null
   return { current, next }
+}
+
+// Feed earned from a workout is the total reps performed - more sets and
+// reps across any exercise means more food for the monster.
+export function computeEarnedFeed(sets: { reps: number }[]): number {
+  return sets.reduce((sum, set) => sum + set.reps, 0)
 }
 
 function toDateString(d: Date) {

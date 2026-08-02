@@ -26,11 +26,17 @@ export interface BodyWeight {
   weight: number
 }
 
+export interface MonsterState {
+  id: number // always 1, singleton row
+  fed: number // cumulative amount of feed given to the monster so far
+}
+
 const db = new Dexie('muscle-training-app') as Dexie & {
   exercises: EntityTable<Exercise, 'id'>
   sets: EntityTable<WorkoutSet, 'id'>
   programs: EntityTable<Program, 'id'>
   bodyWeights: EntityTable<BodyWeight, 'id'>
+  monsterState: EntityTable<MonsterState, 'id'>
 }
 
 db.version(1).stores({
@@ -44,6 +50,14 @@ db.version(2).stores({
   sets: '++id, exerciseId, date',
   programs: '++id, name',
   bodyWeights: '++id, &date',
+})
+
+db.version(3).stores({
+  exercises: '++id, name',
+  sets: '++id, exerciseId, date',
+  programs: '++id, name',
+  bodyWeights: '++id, &date',
+  monsterState: 'id',
 })
 
 export { db }
