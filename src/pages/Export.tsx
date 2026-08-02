@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db'
+import { groupConsecutiveSets } from '../lib/sets'
 
 function daysAgo(n: number) {
   return new Date(Date.now() - n * 86_400_000).toISOString().slice(0, 10)
@@ -90,11 +91,12 @@ export default function Export() {
                 )}
               </div>
               <ul className="text-sm">
-                {byDate.get(date)?.map((set) => (
-                  <li key={set.id} className="flex justify-between py-0.5">
-                    <span>{exerciseMap.get(set.exerciseId) ?? '不明な種目'}</span>
+                {groupConsecutiveSets(byDate.get(date) ?? []).map((group) => (
+                  <li key={group.ids[0]} className="flex justify-between py-0.5">
+                    <span>{exerciseMap.get(group.exerciseId) ?? '不明な種目'}</span>
                     <span className="font-mono">
-                      {set.weight}kg × {set.reps}回
+                      {group.weight}kg × {group.reps}回
+                      {group.ids.length > 1 && ` × ${group.ids.length}セット`}
                     </span>
                   </li>
                 ))}
