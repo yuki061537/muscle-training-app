@@ -112,7 +112,7 @@ const navItems: { to: string; label: string; end?: boolean; icon: (p: { classNam
   { to: '/programs', label: 'メニュー', icon: ListIcon },
   { to: '/rm', label: 'RM計算', icon: TargetIcon },
   { to: '/analytics', label: '分析', icon: ChartIcon },
-  { to: '/monster', label: 'モンスター', icon: SparkleIcon },
+  { to: '/monster', label: 'トレモン', icon: SparkleIcon },
   { to: '/data', label: 'データ', icon: DatabaseIcon },
 ]
 
