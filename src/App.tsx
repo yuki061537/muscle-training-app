@@ -8,6 +8,7 @@ import Help from './pages/Help'
 import Export from './pages/Export'
 import Monster from './pages/Monster'
 import OneRepMax from './pages/OneRepMax'
+import Data from './pages/Data'
 import { RestTimerProvider } from './context/RestTimerContext'
 import RestTimerBar from './components/RestTimerBar'
 
@@ -81,6 +82,16 @@ function TargetIcon(props: { className?: string }) {
   )
 }
 
+function DatabaseIcon(props: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className={props.className}>
+      <ellipse cx="12" cy="5.5" rx="7.5" ry="2.5" />
+      <path d="M4.5 5.5v6c0 1.4 3.4 2.5 7.5 2.5s7.5-1.1 7.5-2.5v-6" />
+      <path d="M4.5 11.5v6c0 1.4 3.4 2.5 7.5 2.5s7.5-1.1 7.5-2.5v-6" />
+    </svg>
+  )
+}
+
 function HelpIcon(props: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className={props.className}>
@@ -102,6 +113,7 @@ const navItems: { to: string; label: string; end?: boolean; icon: (p: { classNam
   { to: '/rm', label: 'RM計算', icon: TargetIcon },
   { to: '/analytics', label: '分析', icon: ChartIcon },
   { to: '/monster', label: 'モンスター', icon: SparkleIcon },
+  { to: '/data', label: 'データ', icon: DatabaseIcon },
 ]
 
 export default function App() {
@@ -138,20 +150,21 @@ export default function App() {
             <Route path="/export" element={<Export />} />
             <Route path="/monster" element={<Monster />} />
             <Route path="/rm" element={<OneRepMax />} />
+            <Route path="/data" element={<Data />} />
           </Routes>
         </main>
 
         <div className="fixed inset-x-0 bottom-0 z-20 print:hidden">
           <RestTimerBar />
           <nav className="border-t border-white/5 bg-canvas/90 backdrop-blur-lg [padding-bottom:env(safe-area-inset-bottom)]">
-            <ul className="mx-auto flex max-w-md px-3 py-2">
+            <ul className="mx-auto grid max-w-md grid-cols-4 gap-1 px-3 py-2">
               {navItems.map(({ to, label, end, icon: Icon }) => (
-                <li key={to} className="flex-1">
+                <li key={to}>
                   <NavLink
                     to={to}
                     end={end}
                     className={({ isActive }) =>
-                      `mx-1 flex flex-col items-center gap-1 rounded-xl py-2 text-[11px] font-medium transition-colors ${
+                      `flex flex-col items-center gap-1 rounded-xl py-2 text-[11px] font-medium transition-colors ${
                         isActive ? 'bg-accent/15 text-accent' : 'text-zinc-500 hover:text-zinc-300'
                       }`
                     }

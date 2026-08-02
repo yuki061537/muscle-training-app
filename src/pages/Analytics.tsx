@@ -9,9 +9,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { Link } from 'react-router-dom'
 import { db } from '../db'
-import DataBackup from '../components/DataBackup'
 
 const tooltipStyle = {
   background: '#202126',
@@ -131,21 +129,6 @@ export default function Analytics() {
           </div>
         </div>
       )}
-
-      <Link
-        to="/export"
-        className="mt-6 flex items-center justify-between rounded-2xl border border-white/5 bg-surface p-4"
-      >
-        <div>
-          <h2 className="text-xs font-semibold tracking-wide text-zinc-500 uppercase">記録の書き出し</h2>
-          <p className="mt-1 text-sm text-zinc-300">PDFとして保存・印刷する</p>
-        </div>
-        <span className="text-accent">→</span>
-      </Link>
-
-      <div className="mt-4">
-        <DataBackup />
-      </div>
     </div>
   )
 }
