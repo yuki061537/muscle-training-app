@@ -7,6 +7,7 @@ import Analytics from './pages/Analytics'
 import Help from './pages/Help'
 import Export from './pages/Export'
 import Monster from './pages/Monster'
+import OneRepMax from './pages/OneRepMax'
 import { RestTimerProvider } from './context/RestTimerContext'
 import RestTimerBar from './components/RestTimerBar'
 
@@ -70,6 +71,16 @@ function SparkleIcon(props: { className?: string }) {
   )
 }
 
+function TargetIcon(props: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className={props.className}>
+      <circle cx="12" cy="12" r="8.5" />
+      <circle cx="12" cy="12" r="5" />
+      <circle cx="12" cy="12" r="1.4" fill="currentColor" />
+    </svg>
+  )
+}
+
 function HelpIcon(props: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className={props.className}>
@@ -90,6 +101,7 @@ const navItems: { to: string; label: string; end?: boolean; icon: (p: { classNam
   { to: '/programs', label: 'メニュー', icon: ListIcon },
   { to: '/analytics', label: '分析', icon: ChartIcon },
   { to: '/monster', label: 'モンスター', icon: SparkleIcon },
+  { to: '/rm', label: 'RM計算', icon: TargetIcon },
 ]
 
 export default function App() {
@@ -125,6 +137,7 @@ export default function App() {
             <Route path="/help" element={<Help />} />
             <Route path="/export" element={<Export />} />
             <Route path="/monster" element={<Monster />} />
+            <Route path="/rm" element={<OneRepMax />} />
           </Routes>
         </main>
 
