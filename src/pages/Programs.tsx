@@ -5,6 +5,7 @@ import { db } from '../db'
 export default function Programs() {
   const [name, setName] = useState('')
   const [selectedIds, setSelectedIds] = useState<number[]>([])
+  const [editingProgramId, setEditingProgramId] = useState<number | null>(null)
 
   const exercises = useLiveQuery(() => db.exercises.orderBy('name').toArray(), [])
   const programs = useLiveQuery(() => db.programs.toArray(), [])
@@ -16,16 +17,34 @@ export default function Programs() {
     )
   }
 
-  async function addProgram(e: React.FormEvent) {
+  function startEditing(program: { id: number; name: string; exerciseIds: number[] }) {
+    setEditingProgramId(program.id)
+    setName(program.name)
+    setSelectedIds(program.exerciseIds)
+  }
+
+  function cancelEditing() {
+    setEditingProgramId(null)
+    setName('')
+    setSelectedIds([])
+  }
+
+  async function saveProgram(e: React.FormEvent) {
     e.preventDefault()
     const trimmed = name.trim()
     if (!trimmed || selectedIds.length === 0) return
-    await db.programs.add({ name: trimmed, exerciseIds: selectedIds })
+    if (editingProgramId) {
+      await db.programs.update(editingProgramId, { name: trimmed, exerciseIds: selectedIds })
+    } else {
+      await db.programs.add({ name: trimmed, exerciseIds: selectedIds })
+    }
+    setEditingProgramId(null)
     setName('')
     setSelectedIds([])
   }
 
   async function removeProgram(id: number) {
+    if (editingProgramId === id) cancelEditing()
     await db.programs.delete(id)
   }
 
@@ -38,7 +57,13 @@ export default function Programs() {
           先に「種目」画面で種目を登録してください。
         </p>
       ) : (
-        <form onSubmit={addProgram} className="mb-6 flex flex-col gap-3 rounded-2xl border border-white/5 bg-surface p-4">
+        <form
+          onSubmit={saveProgram}
+          className="mb-6 flex flex-col gap-3 rounded-2xl border border-white/5 bg-surface p-4"
+        >
+          {editingProgramId && (
+            <p className="text-xs font-medium text-accent">メニューを編集中</p>
+          )}
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -61,12 +86,23 @@ export default function Programs() {
               </button>
             ))}
           </div>
-          <button
-            type="submit"
-            className="rounded-xl bg-accent py-2.5 font-bold text-accent-foreground transition active:scale-[0.98]"
-          >
-            メニューを作成
-          </button>
+          <div className="flex gap-2">
+            {editingProgramId && (
+              <button
+                type="button"
+                onClick={cancelEditing}
+                className="rounded-xl border border-white/10 px-4 py-2.5 font-bold text-zinc-400 transition active:scale-[0.98]"
+              >
+                キャンセル
+              </button>
+            )}
+            <button
+              type="submit"
+              className="flex-1 rounded-xl bg-accent py-2.5 font-bold text-accent-foreground transition active:scale-[0.98]"
+            >
+              {editingProgramId ? '更新する' : 'メニューを作成'}
+            </button>
+          </div>
         </form>
       )}
 
@@ -74,16 +110,28 @@ export default function Programs() {
         {programs?.map((program) => (
           <li
             key={program.id}
-            className="rounded-2xl border border-white/5 bg-surface px-4 py-3"
+            className={`rounded-2xl border px-4 py-3 ${
+              editingProgramId === program.id
+                ? 'border-accent bg-surface'
+                : 'border-white/5 bg-surface'
+            }`}
           >
-            <div className="mb-1 flex items-center justify-between">
+            <div className="mb-1 flex items-center justify-between gap-2">
               <span className="font-bold text-white">{program.name}</span>
-              <button
-                onClick={() => removeProgram(program.id)}
-                className="text-xs text-zinc-600 hover:text-red-400"
-              >
-                削除
-              </button>
+              <div className="flex shrink-0 gap-3">
+                <button
+                  onClick={() => startEditing(program)}
+                  className="text-xs text-zinc-400 hover:text-accent"
+                >
+                  編集
+                </button>
+                <button
+                  onClick={() => removeProgram(program.id)}
+                  className="text-xs text-zinc-600 hover:text-red-400"
+                >
+                  削除
+                </button>
+              </div>
             </div>
             <p className="text-sm text-zinc-500">
               {program.exerciseIds.map((id) => exerciseMap.get(id)).filter(Boolean).join(' / ')}
