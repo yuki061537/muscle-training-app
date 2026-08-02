@@ -38,7 +38,7 @@ export default function DataBackup() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `筋トレ記録-backup-${todayStamp()}.json`
+    a.download = `トレモン-backup-${todayStamp()}.json`
     a.click()
     URL.revokeObjectURL(url)
     setStatus('書き出しが完了しました')

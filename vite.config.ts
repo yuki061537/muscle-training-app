@@ -17,9 +17,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
       manifest: {
-        name: '筋トレ記録',
-        short_name: '筋トレ記録',
-        description: 'ワークアウトの記録・メニュー管理・分析ができるトレーニングアプリ',
+        name: 'トレモン',
+        short_name: 'トレモン',
+        description: '筋肉で育てる脳筋モンスター',
         theme_color: '#0a0a0b',
         background_color: '#0a0a0b',
         display: 'standalone',

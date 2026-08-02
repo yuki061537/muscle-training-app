@@ -74,7 +74,7 @@ export default function Export() {
       </div>
 
       <div className="rounded-2xl bg-white p-6 text-zinc-900 print:rounded-none print:p-0">
-        <h2 className="text-lg font-bold">筋トレ記録</h2>
+        <h2 className="text-lg font-bold">トレモン</h2>
         <p className="mb-4 text-xs text-zinc-500">
           {from} 〜 {to}
         </p>

@@ -125,8 +125,8 @@ export default function App() {
             <DumbbellIcon className="h-5 w-5 text-accent-foreground" />
           </div>
           <div className="flex-1">
-            <h1 className="text-base font-extrabold tracking-tight text-white">筋トレ記録</h1>
-            <p className="text-xs text-zinc-500">今日もいい追い込みを</p>
+            <h1 className="text-base font-extrabold tracking-tight text-white">トレモン</h1>
+            <p className="text-xs text-zinc-500">筋肉で育てる脳筋モンスター</p>
           </div>
           <NavLink
             to="/help"
