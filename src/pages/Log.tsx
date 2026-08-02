@@ -2,7 +2,6 @@ import { useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db'
 import { useRestTimer } from '../context/RestTimerContext'
-import TrainingMonster from '../components/TrainingMonster'
 
 const REST_PRESETS = [60, 90, 120, 180]
 const REST_MIN = 15
@@ -108,37 +107,6 @@ export default function Log() {
           className="rounded-xl border border-white/10 bg-surface-2 px-3 py-2 text-sm text-zinc-200 focus:border-accent focus:outline-none"
         />
       </div>
-
-      <TrainingMonster />
-
-      <form
-        onSubmit={saveBodyWeight}
-        className="mb-4 flex items-center gap-3 rounded-2xl border border-white/5 bg-surface p-4"
-      >
-        <div className="flex-1">
-          <p className="text-xs font-medium text-zinc-500">体重</p>
-          {bodyWeightForDate ? (
-            <p className="font-mono text-lg font-bold text-white">{bodyWeightForDate.weight}kg</p>
-          ) : (
-            <p className="text-sm text-zinc-600">この日はまだ未記録</p>
-          )}
-        </div>
-        <input
-          type="number"
-          inputMode="decimal"
-          step="0.1"
-          placeholder="kg"
-          value={bodyWeightInput}
-          onChange={(e) => setBodyWeightInput(e.target.value)}
-          className="w-20 rounded-lg border border-white/10 bg-surface-2 px-3 py-2 text-center text-zinc-100 placeholder:text-zinc-600 focus:border-accent focus:outline-none"
-        />
-        <button
-          type="submit"
-          className="rounded-lg bg-accent px-3 py-2 text-sm font-bold text-accent-foreground transition active:scale-[0.98]"
-        >
-          保存
-        </button>
-      </form>
 
       {exercises?.length === 0 ? (
         <p className="rounded-2xl border border-white/5 bg-surface p-4 text-sm text-zinc-400">
@@ -339,6 +307,35 @@ export default function Log() {
           </p>
         )}
       </ul>
+
+      <form
+        onSubmit={saveBodyWeight}
+        className="mt-4 flex items-center gap-3 rounded-2xl border border-white/5 bg-surface p-4"
+      >
+        <div className="flex-1">
+          <p className="text-xs font-medium text-zinc-500">体重</p>
+          {bodyWeightForDate ? (
+            <p className="font-mono text-lg font-bold text-white">{bodyWeightForDate.weight}kg</p>
+          ) : (
+            <p className="text-sm text-zinc-600">この日はまだ未記録</p>
+          )}
+        </div>
+        <input
+          type="number"
+          inputMode="decimal"
+          step="0.1"
+          placeholder="kg"
+          value={bodyWeightInput}
+          onChange={(e) => setBodyWeightInput(e.target.value)}
+          className="w-20 rounded-lg border border-white/10 bg-surface-2 px-3 py-2 text-center text-zinc-100 placeholder:text-zinc-600 focus:border-accent focus:outline-none"
+        />
+        <button
+          type="submit"
+          className="rounded-lg bg-accent px-3 py-2 text-sm font-bold text-accent-foreground transition active:scale-[0.98]"
+        >
+          保存
+        </button>
+      </form>
     </div>
   )
 }

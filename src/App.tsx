@@ -6,6 +6,7 @@ import Programs from './pages/Programs'
 import Analytics from './pages/Analytics'
 import Help from './pages/Help'
 import Export from './pages/Export'
+import Monster from './pages/Monster'
 import { RestTimerProvider } from './context/RestTimerContext'
 import RestTimerBar from './components/RestTimerBar'
 
@@ -57,6 +58,18 @@ function ChartIcon(props: { className?: string }) {
   )
 }
 
+function SparkleIcon(props: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className={props.className}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 3.5c.5 3.2 1.3 5 2.6 6.3 1.3 1.3 3.1 2.1 6.3 2.6-3.2.5-5 1.3-6.3 2.6-1.3 1.3-2.1 3.1-2.6 6.3-.5-3.2-1.3-5-2.6-6.3-1.3-1.3-3.1-2.1-6.3-2.6 3.2-.5 5-1.3 6.3-2.6C10.7 8.5 11.5 6.7 12 3.5z"
+      />
+    </svg>
+  )
+}
+
 function HelpIcon(props: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className={props.className}>
@@ -76,6 +89,7 @@ const navItems: { to: string; label: string; end?: boolean; icon: (p: { classNam
   { to: '/exercises', label: '種目', icon: DumbbellIcon },
   { to: '/programs', label: 'メニュー', icon: ListIcon },
   { to: '/analytics', label: '分析', icon: ChartIcon },
+  { to: '/monster', label: 'モンスター', icon: SparkleIcon },
 ]
 
 export default function App() {
@@ -110,6 +124,7 @@ export default function App() {
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/help" element={<Help />} />
             <Route path="/export" element={<Export />} />
+            <Route path="/monster" element={<Monster />} />
           </Routes>
         </main>
 
