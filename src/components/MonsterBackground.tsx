@@ -1,6 +1,7 @@
-const GRID_W = 40
-const GRID_H = 14
-const CELL = 4
+const SCALE = 2
+const GRID_W = 40 * SCALE
+const GRID_H = 14 * SCALE
+const CELL = 2
 
 type Cell = [col: number, row: number]
 
@@ -19,6 +20,23 @@ function triangle(peakCol: number, peakRow: number, baseRow: number, halfWidthAt
     }
   }
   return { type: 'cells', cells, color }
+}
+
+function scaleShapes(shapes: Shape[], factor: number): Shape[] {
+  return shapes.map((shape) => {
+    if (shape.type === 'ellipse') {
+      return { ...shape, cx: shape.cx * factor, cy: shape.cy * factor, rx: shape.rx * factor, ry: shape.ry * factor }
+    }
+    const cells: Cell[] = []
+    for (const [c, r] of shape.cells) {
+      for (let dc = 0; dc < factor; dc++) {
+        for (let dr = 0; dr < factor; dr++) {
+          cells.push([c * factor + dc, r * factor + dr])
+        }
+      }
+    }
+    return { ...shape, cells }
+  })
 }
 
 function rasterize(sky: string, shapes: Shape[]): string[][] {
@@ -116,7 +134,7 @@ function scene(level: number): { sky: string; shapes: Shape[] } {
 
 export default function MonsterBackground({ level, className }: { level: number; className?: string }) {
   const { sky, shapes } = scene(level)
-  const grid = rasterize(sky, shapes)
+  const grid = rasterize(sky, scaleShapes(shapes, SCALE))
   return (
     <svg
       viewBox={`0 0 ${GRID_W * CELL} ${GRID_H * CELL}`}

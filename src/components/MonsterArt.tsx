@@ -1,5 +1,6 @@
-const GRID = 20
-const CELL = 6
+const SCALE = 2
+const GRID = 20 * SCALE
+const CELL = 3
 
 const CREAM = '#e8e2d0'
 const YELLOW = '#f5d34e'
@@ -27,6 +28,25 @@ type Cell = [col: number, row: number]
 type Shape =
   | { type: 'ellipse'; cx: number; cy: number; rx: number; ry: number; color: string }
   | { type: 'cells'; cells: Cell[]; color: string }
+
+function scaleShapes(shapes: Shape[], factor: number): Shape[] {
+  return shapes.map((shape) => {
+    if (shape.type === 'ellipse') {
+      return { ...shape, cx: shape.cx * factor, cy: shape.cy * factor, rx: shape.rx * factor, ry: shape.ry * factor }
+    }
+    // Expand each source pixel into a factor x factor block so hand-placed
+    // accents (pupils, mouths, crowns...) stay solid instead of gaining gaps.
+    const cells: Cell[] = []
+    for (const [c, r] of shape.cells) {
+      for (let dc = 0; dc < factor; dc++) {
+        for (let dr = 0; dr < factor; dr++) {
+          cells.push([c * factor + dc, r * factor + dr])
+        }
+      }
+    }
+    return { ...shape, cells }
+  })
+}
 
 function roundEyes(cx1: number, cx2: number, cy: number, expression: Expression, irisColor = WHITE): Shape[] {
   const row = Math.round(cy)
@@ -161,7 +181,7 @@ export default function MonsterArt({
   className?: string
 }) {
   const build = ARTWORK[level] ?? (() => EGG)
-  const grid = rasterize(build(expression))
+  const grid = rasterize(scaleShapes(build(expression), SCALE))
   return (
     <div className={className}>
       <svg viewBox={`0 0 ${GRID * CELL} ${GRID * CELL}`} shapeRendering="crispEdges">
