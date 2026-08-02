@@ -53,3 +53,26 @@ export function computeStreak(dates: string[]): number {
   }
   return streak
 }
+
+export type CareTier = 'neglected' | 'normal' | 'dedicated'
+
+const NEGLECT_DAYS = 7
+const DEDICATED_STREAK = 7
+
+// Reflects current care based on feeding history: fed daily for a solid
+// streak looks visibly happy/decorated, left unfed for a week or more looks
+// visibly neglected. Anything in between is just the normal look.
+export function computeCareTier(feedingDates: string[]): CareTier {
+  if (feedingDates.length === 0) return 'normal'
+
+  const uniqueSorted = Array.from(new Set(feedingDates)).sort().reverse()
+  const today = toDateString(new Date())
+  const daysSinceLastFeed = Math.floor(
+    (new Date(today).getTime() - new Date(uniqueSorted[0]).getTime()) / 86_400_000,
+  )
+  if (daysSinceLastFeed >= NEGLECT_DAYS) return 'neglected'
+
+  if (computeStreak(feedingDates) >= DEDICATED_STREAK) return 'dedicated'
+
+  return 'normal'
+}

@@ -1,9 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db'
-import { computeEarnedFeed, computeStreak, getMonsterStage } from '../lib/monster'
+import { computeCareTier, computeEarnedFeed, computeStreak, getMonsterStage } from '../lib/monster'
 import MonsterArt, { type Expression } from './MonsterArt'
 import MonsterBackground from './MonsterBackground'
+
+function today() {
+  return new Date().toISOString().slice(0, 10)
+}
+
+const CARE_MESSAGES: Record<string, string> = {
+  neglected: '💤 1週間以上お世話していません。餌をあげて元気にしてあげましょう',
+  dedicated: '💛 毎日お世話できています!',
+}
 
 export default function TrainingMonster() {
   const [expression, setExpression] = useState<Expression>('open')
@@ -11,6 +20,7 @@ export default function TrainingMonster() {
 
   const allSets = useLiveQuery(() => db.sets.toArray(), [])
   const monsterState = useLiveQuery(() => db.monsterState.get(1), [])
+  const feedings = useLiveQuery(() => db.feedings.toArray(), [])
 
   useEffect(() => {
     function scheduleBlink() {
@@ -27,7 +37,7 @@ export default function TrainingMonster() {
     return () => window.clearTimeout(timeoutRef.current)
   }, [])
 
-  if (!allSets) return null
+  if (!allSets || !feedings) return null
 
   const fed = monsterState?.fed ?? 0
   const earned = computeEarnedFeed(allSets)
@@ -36,10 +46,12 @@ export default function TrainingMonster() {
   const { current, next } = getMonsterStage(fed)
   const feedToNext = next ? next.minFed - fed : 0
   const progress = next ? (fed - current.minFed) / (next.minFed - current.minFed) : 1
+  const careTier = computeCareTier(feedings.map((f) => f.date))
 
   async function feedMonster() {
     if (available <= 0) return
     await db.monsterState.put({ id: 1, fed: fed + available })
+    await db.feedings.add({ date: today() })
   }
 
   return (
@@ -48,7 +60,7 @@ export default function TrainingMonster() {
         <MonsterBackground level={current.level} className="absolute inset-0 h-full w-full" />
         <div className="monster-walk">
           <div className="monster-bob">
-            <MonsterArt level={current.level} expression={expression} className="h-16 w-16" />
+            <MonsterArt level={current.level} expression={expression} careTier={careTier} className="h-16 w-16" />
           </div>
         </div>
       </div>
@@ -61,6 +73,10 @@ export default function TrainingMonster() {
           </span>
         )}
       </div>
+
+      {CARE_MESSAGES[careTier] && (
+        <p className="mt-1 text-[11px] text-zinc-400">{CARE_MESSAGES[careTier]}</p>
+      )}
 
       {next ? (
         <>

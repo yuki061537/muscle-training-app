@@ -1,3 +1,5 @@
+import type { CareTier } from '../lib/monster'
+
 const SCALE = 2
 const GRID = 20 * SCALE
 const CELL = 3
@@ -69,6 +71,29 @@ function slitEyes(cx1: number, cx2: number, cy: number, expression: Expression):
     { type: 'cells', color, cells: [[cx1, cy], [cx1 + 1, cy]] },
     { type: 'cells', color, cells: [[cx2, cy], [cx2 + 1, cy]] },
   ]
+}
+
+function sparkle(cx: number, cy: number): Cell[] {
+  return [[cx, cy - 1], [cx - 1, cy], [cx, cy], [cx + 1, cy], [cx, cy + 1]]
+}
+
+// Reflects current care regardless of species: a translucent dust layer plus
+// drooping "zzz" marks when neglected, a few sparkles when fed daily.
+function careOverlay(tier: CareTier): Shape[] {
+  if (tier === 'neglected') {
+    return [
+      { type: 'ellipse', cx: 10, cy: 11, rx: 9, ry: 9, color: 'rgba(10,10,11,0.35)' },
+      { type: 'cells', color: '#6b6b74', cells: [[15, 2], [16, 1], [16, 3], [17, 0]] },
+    ]
+  }
+  if (tier === 'dedicated') {
+    return [
+      { type: 'cells', color: '#ffd76a', cells: sparkle(2, 3) },
+      { type: 'cells', color: '#ffd76a', cells: sparkle(17, 4) },
+      { type: 'cells', color: '#ff9ac6', cells: sparkle(16, 16) },
+    ]
+  }
+  return []
 }
 
 function rasterize(shapes: Shape[]): (string | null)[][] {
@@ -174,14 +199,17 @@ const ARTWORK: Record<number, (expression: Expression) => Shape[]> = {
 export default function MonsterArt({
   level,
   expression = 'open',
+  careTier = 'normal',
   className,
 }: {
   level: number
   expression?: Expression
+  careTier?: CareTier
   className?: string
 }) {
   const build = ARTWORK[level] ?? (() => EGG)
-  const grid = rasterize(scaleShapes(build(expression), SCALE))
+  const shapes = [...build(expression), ...careOverlay(careTier)]
+  const grid = rasterize(scaleShapes(shapes, SCALE))
   return (
     <div className={className}>
       <svg viewBox={`0 0 ${GRID * CELL} ${GRID * CELL}`} shapeRendering="crispEdges">
