@@ -99,9 +99,9 @@ const navItems: { to: string; label: string; end?: boolean; icon: (p: { classNam
   { to: '/', label: '記録', end: true, icon: PencilIcon },
   { to: '/exercises', label: '種目', icon: DumbbellIcon },
   { to: '/programs', label: 'メニュー', icon: ListIcon },
+  { to: '/rm', label: 'RM計算', icon: TargetIcon },
   { to: '/analytics', label: '分析', icon: ChartIcon },
   { to: '/monster', label: 'モンスター', icon: SparkleIcon },
-  { to: '/rm', label: 'RM計算', icon: TargetIcon },
 ]
 
 export default function App() {
