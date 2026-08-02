@@ -45,26 +45,6 @@ export default function Analytics() {
     <div>
       <h1 className="mb-5 text-2xl font-extrabold tracking-tight text-white">分析</h1>
 
-      {bodyWeights && bodyWeights.length > 0 && (
-        <div className="mb-6 rounded-2xl border border-white/5 bg-surface p-4">
-          <h2 className="mb-2 text-xs font-semibold tracking-wide text-zinc-500 uppercase">体重 (kg)</h2>
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={bodyWeights}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
-              <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#71717a' }} axisLine={false} tickLine={false} />
-              <YAxis
-                domain={['dataMin - 2', 'dataMax + 2']}
-                tick={{ fontSize: 11, fill: '#71717a' }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <Tooltip contentStyle={tooltipStyle} />
-              <Line type="monotone" dataKey="weight" stroke="#fb923c" strokeWidth={2.5} dot={{ fill: '#fb923c', r: 3 }} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-
       {exercises?.length === 0 ? (
         <p className="rounded-2xl border border-white/5 bg-surface p-4 text-sm text-zinc-400">記録がまだありません。</p>
       ) : (
@@ -127,6 +107,26 @@ export default function Analytics() {
               </LineChart>
             </ResponsiveContainer>
           </div>
+        </div>
+      )}
+
+      {bodyWeights && bodyWeights.length > 0 && (
+        <div className="mt-6 rounded-2xl border border-white/5 bg-surface p-4">
+          <h2 className="mb-2 text-xs font-semibold tracking-wide text-zinc-500 uppercase">体重 (kg)</h2>
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart data={bodyWeights}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
+              <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#71717a' }} axisLine={false} tickLine={false} />
+              <YAxis
+                domain={['dataMin - 2', 'dataMax + 2']}
+                tick={{ fontSize: 11, fill: '#71717a' }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Line type="monotone" dataKey="weight" stroke="#fb923c" strokeWidth={2.5} dot={{ fill: '#fb923c', r: 3 }} />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       )}
     </div>
