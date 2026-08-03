@@ -14,9 +14,15 @@ const CARE_MESSAGES: Record<string, string> = {
   dedicated: '💛 毎日お世話できています!',
 }
 
+const PET_REACTIONS = ['ぷるん!', 'もっと鍛えて!', 'うれしい!', 'がんばるぞ!', 'きたえろ!', 'つよくなる!']
+
 export default function TrainingMonster() {
   const [expression, setExpression] = useState<Expression>('open')
   const timeoutRef = useRef<number | undefined>(undefined)
+  const [hearts, setHearts] = useState<{ id: number; x: number }[]>([])
+  const [squishKey, setSquishKey] = useState(0)
+  const [reaction, setReaction] = useState<string | null>(null)
+  const reactionTimeoutRef = useRef<number | undefined>(undefined)
 
   const allSets = useLiveQuery(() => db.sets.toArray(), [])
   const monsterState = useLiveQuery(() => db.monsterState.get(1), [])
@@ -54,16 +60,46 @@ export default function TrainingMonster() {
     await db.feedings.add({ date: today() })
   }
 
+  function petMonster() {
+    const id = Date.now() + Math.random()
+    const x = 35 + Math.random() * 30
+    setHearts((prev) => [...prev, { id, x }])
+    window.setTimeout(() => setHearts((prev) => prev.filter((h) => h.id !== id)), 900)
+
+    setSquishKey((k) => k + 1)
+
+    setReaction(PET_REACTIONS[Math.floor(Math.random() * PET_REACTIONS.length)])
+    window.clearTimeout(reactionTimeoutRef.current)
+    reactionTimeoutRef.current = window.setTimeout(() => setReaction(null), 1100)
+  }
+
   return (
     <div className="mb-4 rounded-2xl border border-white/5 bg-surface p-4">
-      <div className="relative mb-4 h-28 overflow-hidden rounded-xl bg-surface-2">
+      <button
+        type="button"
+        onClick={petMonster}
+        aria-label="モンスターを撫でる"
+        className="relative mb-4 h-28 w-full overflow-hidden rounded-xl bg-surface-2 active:scale-[0.99]"
+      >
         <MonsterBackground level={current.level} className="absolute inset-0 h-full w-full" />
         <div className="monster-walk">
           <div className="monster-bob">
-            <MonsterArt level={current.level} expression={expression} careTier={careTier} className="h-16 w-16" />
+            <div key={squishKey} className={squishKey > 0 ? 'monster-squish' : undefined}>
+              <MonsterArt level={current.level} expression={expression} careTier={careTier} className="h-16 w-16" />
+            </div>
           </div>
         </div>
-      </div>
+        {hearts.map((heart) => (
+          <span key={heart.id} className="monster-heart text-lg" style={{ left: `${heart.x}%` }}>
+            💗
+          </span>
+        ))}
+        {reaction && (
+          <span className="absolute top-2 left-1/2 -translate-x-1/2 rounded-full bg-canvas/80 px-2 py-1 text-xs font-bold text-white">
+            {reaction}
+          </span>
+        )}
+      </button>
 
       <div className="flex items-center justify-between gap-2">
         <p className="font-bold text-white">{current.name}</p>
