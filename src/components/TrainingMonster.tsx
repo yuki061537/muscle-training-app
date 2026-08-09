@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db'
 import { computeCareTier, computeEarnedFeed, computeStreak, getMonsterStage } from '../lib/monster'
-import MonsterArt, { type Expression } from './MonsterArt'
+import MonsterArt from './MonsterArt'
 import MonsterBackground from './MonsterBackground'
 
 function today() {
@@ -17,8 +17,6 @@ const CARE_MESSAGES: Record<string, string> = {
 const PET_REACTIONS = ['ぷるん!', 'もっと鍛えて!', 'うれしい!', 'がんばるぞ!', 'きたえろ!', 'つよくなる!']
 
 export default function TrainingMonster() {
-  const [expression, setExpression] = useState<Expression>('open')
-  const timeoutRef = useRef<number | undefined>(undefined)
   const [hearts, setHearts] = useState<{ id: number; x: number }[]>([])
   const [squishKey, setSquishKey] = useState(0)
   const [reaction, setReaction] = useState<string | null>(null)
@@ -27,21 +25,6 @@ export default function TrainingMonster() {
   const allSets = useLiveQuery(() => db.sets.toArray(), [])
   const monsterState = useLiveQuery(() => db.monsterState.get(1), [])
   const feedings = useLiveQuery(() => db.feedings.toArray(), [])
-
-  useEffect(() => {
-    function scheduleBlink() {
-      const delay = 2200 + Math.random() * 3000
-      timeoutRef.current = window.setTimeout(() => {
-        setExpression('blink')
-        timeoutRef.current = window.setTimeout(() => {
-          setExpression('open')
-          scheduleBlink()
-        }, 160)
-      }, delay)
-    }
-    scheduleBlink()
-    return () => window.clearTimeout(timeoutRef.current)
-  }, [])
 
   if (!allSets || !feedings) return null
 
@@ -85,7 +68,7 @@ export default function TrainingMonster() {
         <div className="monster-walk">
           <div className="monster-bob">
             <div key={squishKey} className={squishKey > 0 ? 'monster-squish' : undefined}>
-              <MonsterArt level={current.level} expression={expression} careTier={careTier} className="h-16 w-16" />
+              <MonsterArt level={current.level} careTier={careTier} className="h-16 w-16" />
             </div>
           </div>
         </div>

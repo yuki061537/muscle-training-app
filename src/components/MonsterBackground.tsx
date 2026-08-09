@@ -90,7 +90,7 @@ function scene(level: number): { sky: string; shapes: Shape[] } {
           { type: 'ellipse', cx: 5, cy: 7, rx: 3, ry: 2.4, color: '#3f8a37' },
         ],
       }
-    case 4: // wolf: mountain forest dusk
+    case 4: // mature wolf: mountain forest dusk
       return {
         sky: '#4a5b73',
         shapes: [
@@ -103,20 +103,7 @@ function scene(level: number): { sky: string; shapes: Shape[] } {
           { type: 'ellipse', cx: 20, cy: 22, rx: 26, ry: 10, color: '#39493c' },
         ],
       }
-    case 5: // griffon: sky peaks
-      return {
-        sky: '#bfeee8',
-        shapes: [
-          { type: 'ellipse', cx: 6, cy: 3, rx: 4, ry: 1.6, color: '#ffffff' },
-          { type: 'ellipse', cx: 32, cy: 2, rx: 3.5, ry: 1.4, color: '#ffffff' },
-          triangle(14, 3, 12, 10, '#4f8a82'),
-          triangle(28, 1, 12, 11, '#3d6f68'),
-          { type: 'cells', color: '#ffffff', cells: [[12, 3], [13, 3], [14, 3], [15, 3]] },
-          { type: 'cells', color: '#ffffff', cells: [[26, 1], [27, 1], [28, 1], [29, 1], [30, 1]] },
-          { type: 'ellipse', cx: 20, cy: 24, rx: 26, ry: 10, color: '#2fb88f' },
-        ],
-      }
-    case 6: // phoenix: volcano magma
+    case 5: // 完全体: crimson volcanic ridge, matching the fire-maned final form
     default:
       return {
         sky: '#2a0f0a',

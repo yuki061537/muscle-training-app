@@ -7,11 +7,10 @@ export interface MonsterStage {
 // Thresholds are cumulative amount of feed given (not earned) to reach each stage.
 export const MONSTER_STAGES: MonsterStage[] = [
   { level: 1, name: 'たまご', minFed: 0 },
-  { level: 2, name: 'ひよこ', minFed: 300 },
-  { level: 3, name: 'こいぬ', minFed: 1200 },
-  { level: 4, name: 'ウルフ', minFed: 4000 },
-  { level: 5, name: 'グリフォン', minFed: 10000 },
-  { level: 6, name: 'フェニックス', minFed: 25000 },
+  { level: 2, name: '幼年期', minFed: 500 },
+  { level: 3, name: '成長期', minFed: 2000 },
+  { level: 4, name: '成熟期', minFed: 6000 },
+  { level: 5, name: '完全体', minFed: 18000 },
 ]
 
 export function getMonsterStage(fed: number): { current: MonsterStage; next: MonsterStage | null } {
