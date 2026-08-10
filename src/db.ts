@@ -26,11 +26,23 @@ export interface BodyWeight {
   weight: number
 }
 
+export interface MonsterState {
+  id: number // always 1, singleton row
+  fed: number // cumulative amount of feed given to the monster so far
+}
+
+export interface Feeding {
+  id: number
+  date: string // ISO date (YYYY-MM-DD) the feeding happened on
+}
+
 const db = new Dexie('muscle-training-app') as Dexie & {
   exercises: EntityTable<Exercise, 'id'>
   sets: EntityTable<WorkoutSet, 'id'>
   programs: EntityTable<Program, 'id'>
   bodyWeights: EntityTable<BodyWeight, 'id'>
+  monsterState: EntityTable<MonsterState, 'id'>
+  feedings: EntityTable<Feeding, 'id'>
 }
 
 db.version(1).stores({
@@ -71,6 +83,16 @@ db.version(5).stores({
   bodyWeights: '++id, &date',
   monsterState: null,
   feedings: null,
+})
+
+// Monster feature reinstated with new artwork.
+db.version(6).stores({
+  exercises: '++id, name',
+  sets: '++id, exerciseId, date',
+  programs: '++id, name',
+  bodyWeights: '++id, &date',
+  monsterState: 'id',
+  feedings: '++id, date',
 })
 
 export { db }
