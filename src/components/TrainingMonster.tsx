@@ -72,9 +72,7 @@ export default function TrainingMonster() {
   const progress = next ? (fed - current.minFed) / (next.minFed - current.minFed) : 1
   const careTier = computeCareTier(feedings.map((f) => f.date))
 
-  // An egg can't wander - it just sits and idles in place.
-  const isEgg = current.level === 1
-  const wander = isEgg ? { x: 42, facing: 'right' as const, walking: false, walkFrame: 0 } : wanderState(step)
+  const wander = wanderState(step)
 
   async function feedMonster() {
     if (available <= 0) return
@@ -115,11 +113,9 @@ export default function TrainingMonster() {
               <div key={celebrateKey} className={celebrateKey > 0 ? 'monster-celebrate' : undefined}>
                 <MonsterArt
                   level={current.level}
-                  pose={wander.walking ? 'walk' : 'idle'}
                   facing={wander.facing}
-                  frame={wander.walking ? wander.walkFrame : step}
+                  frame={wander.walkFrame}
                   careTier={careTier}
-                  className="h-20 w-20"
                 />
               </div>
             </div>
