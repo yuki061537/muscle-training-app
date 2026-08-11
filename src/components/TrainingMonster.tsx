@@ -103,7 +103,8 @@ export default function TrainingMonster() {
         type="button"
         onClick={petMonster}
         aria-label="モンスターを撫でる"
-        className="relative mb-4 h-28 w-full overflow-hidden rounded-xl bg-surface-2 active:scale-[0.99]"
+        className="relative mb-4 h-28 w-full overflow-hidden rounded-xl bg-surface-2 bg-cover bg-center active:scale-[0.99]"
+        style={{ backgroundImage: `url(${import.meta.env.BASE_URL}monster/bg-jungle.png)` }}
       >
         <div className="monster-sprite" style={{ left: `${wander.x}%` }}>
           <div className={wander.walking ? undefined : 'monster-bob'}>
