@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db'
 import { computeEarnedFeed, computeStreak, getMonsterStage } from '../lib/monster'
@@ -7,11 +7,6 @@ import MonsterArt from './MonsterArt'
 function today() {
   return new Date().toISOString().slice(0, 10)
 }
-
-// How long the feed celebration flex pose holds, and how fast it pulses
-// between its two frames.
-const FLEX_FRAME_MS = 200
-const FLEX_TICKS = 6
 
 // Wander cycle: walk to one side, pause to idle-fidget, walk back, pause again -
 // a slow patrol rather than a single continuous slide. Each art stage has a
@@ -45,8 +40,6 @@ export default function TrainingMonster() {
   const [step, setStep] = useState(0)
   const [sparkles, setSparkles] = useState<{ id: number; x: number }[]>([])
   const [celebrateKey, setCelebrateKey] = useState(0)
-  const [flex, setFlex] = useState<{ x: number; facing: 'left' | 'right'; frame: number } | null>(null)
-  const flexIntervalRef = useRef<number | undefined>(undefined)
 
   const allSets = useLiveQuery(() => db.sets.toArray(), [])
   const monsterState = useLiveQuery(() => db.monsterState.get(1), [])
@@ -55,10 +48,6 @@ export default function TrainingMonster() {
   useEffect(() => {
     const id = window.setInterval(() => setStep((s) => s + 1), TICK_MS)
     return () => window.clearInterval(id)
-  }, [])
-
-  useEffect(() => {
-    return () => window.clearInterval(flexIntervalRef.current)
   }, [])
 
   if (!allSets || !feedings) return null
@@ -82,19 +71,6 @@ export default function TrainingMonster() {
     setSparkles((prev) => [...prev, { id, x: wander.x - 5 + Math.random() * 10 }])
     window.setTimeout(() => setSparkles((prev) => prev.filter((s) => s.id !== id)), 900)
     setCelebrateKey((k) => k + 1)
-
-    window.clearInterval(flexIntervalRef.current)
-    let ticks = 0
-    setFlex({ x: wander.x, facing: wander.facing, frame: 0 })
-    flexIntervalRef.current = window.setInterval(() => {
-      ticks += 1
-      if (ticks >= FLEX_TICKS) {
-        window.clearInterval(flexIntervalRef.current)
-        setFlex(null)
-        return
-      }
-      setFlex((prev) => (prev ? { ...prev, frame: prev.frame + 1 } : prev))
-    }, FLEX_FRAME_MS)
   }
 
   return (
@@ -103,15 +79,10 @@ export default function TrainingMonster() {
         className="relative mb-4 h-28 w-full overflow-hidden rounded-xl bg-surface-2 bg-cover bg-center"
         style={{ backgroundImage: `url(${import.meta.env.BASE_URL}monster/bg-jungle.png)` }}
       >
-        <div className="monster-sprite" style={{ left: `${flex ? flex.x : wander.x}%` }}>
-          <div className={!flex && wander.walking ? undefined : 'monster-bob'}>
+        <div className="monster-sprite" style={{ left: `${wander.x}%` }}>
+          <div className={wander.walking ? undefined : 'monster-bob'}>
             <div key={celebrateKey} className={celebrateKey > 0 ? 'monster-celebrate' : undefined}>
-              <MonsterArt
-                level={current.level}
-                pose={flex ? 'flex' : 'walk'}
-                facing={flex ? flex.facing : wander.facing}
-                frame={flex ? flex.frame : wander.walkFrame}
-              />
+              <MonsterArt level={current.level} facing={wander.facing} frame={wander.walkFrame} />
             </div>
           </div>
         </div>
