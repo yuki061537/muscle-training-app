@@ -37,12 +37,6 @@ input[type='date']::-webkit-calendar-picker-indicator {
   opacity: 0.6;
 }
 
-.monster-sprite {
-  position: absolute;
-  bottom: 6px;
-  transition: left 420ms linear;
-}
-
 @keyframes monster-bob {
   0%,
   100% {
@@ -143,9 +137,6 @@ input[type='date']::-webkit-calendar-picker-indicator {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .monster-sprite {
-    transition: none;
-  }
   .monster-bob,
   .monster-squish,
   .monster-celebrate,
