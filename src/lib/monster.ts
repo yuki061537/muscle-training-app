@@ -3,18 +3,17 @@ export interface MonsterStage {
   key: string
   name: string
   minFed: number
-  frames: number
+  hasWalk: boolean
 }
 
 // Thresholds are cumulative amount of feed given (not earned) to reach each stage.
 export const MONSTER_STAGES: MonsterStage[] = [
-  { level: 1, key: 'egg', name: 'たまご', minFed: 0, frames: 1 },
-  { level: 2, key: 'baby1', name: '幼年期I', minFed: 300, frames: 2 },
-  { level: 3, key: 'baby2', name: '幼年期II', minFed: 1000, frames: 2 },
-  { level: 4, key: 'growth', name: '成長期', minFed: 3000, frames: 2 },
-  { level: 5, key: 'mature', name: '成熟期', minFed: 8000, frames: 2 },
-  { level: 6, key: 'final', name: '完全体', minFed: 18000, frames: 2 },
-  { level: 7, key: 'ultimate', name: '究極体', minFed: 35000, frames: 2 },
+  { level: 1, key: 'egg', name: 'たまご', minFed: 0, hasWalk: false },
+  { level: 2, key: 'baby', name: '幼年期', minFed: 300, hasWalk: true },
+  { level: 3, key: 'growth', name: '成長期', minFed: 1200, hasWalk: true },
+  { level: 4, key: 'mature', name: '成熟期', minFed: 4000, hasWalk: true },
+  { level: 5, key: 'final', name: '完全体', minFed: 10000, hasWalk: false },
+  { level: 6, key: 'ultimate', name: '究極体', minFed: 25000, hasWalk: false },
 ]
 
 export function getMonsterStage(fed: number): { current: MonsterStage; next: MonsterStage | null } {

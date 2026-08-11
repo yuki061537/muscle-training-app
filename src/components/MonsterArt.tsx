@@ -1,6 +1,9 @@
 import type { CareTier } from '../lib/monster'
 import { MONSTER_STAGES } from '../lib/monster'
 
+export type Pose = 'idle' | 'walk'
+export type Facing = 'left' | 'right'
+
 // The source art has no per-stage neglected/dedicated variants, so care is
 // reflected with a universal filter + badge layered on top of any stage.
 const CARE_FILTER: Record<CareTier, string | undefined> = {
@@ -11,21 +14,38 @@ const CARE_FILTER: Record<CareTier, string | undefined> = {
 
 export default function MonsterArt({
   level,
+  pose = 'idle',
+  facing = 'right',
   frame = 0,
   careTier = 'normal',
   className,
 }: {
   level: number
+  pose?: Pose
+  facing?: Facing
   frame?: number
   careTier?: CareTier
   className?: string
 }) {
   const stage = MONSTER_STAGES.find((s) => s.level === level) ?? MONSTER_STAGES[0]
-  const frameIndex = (frame % stage.frames) + 1
-  const src = `${import.meta.env.BASE_URL}monster/${stage.key}-${frameIndex}.png`
+  const frameIndex = (frame % 2) + 1
+
+  // Only some stages have dedicated left/right walk art. Everything else
+  // falls back to the direction-neutral idle art, mirrored for "left".
+  const usingDirectionalWalk = pose === 'walk' && stage.hasWalk
+  const src = usingDirectionalWalk
+    ? `${import.meta.env.BASE_URL}monster/${stage.key}-walk-${facing}-${frameIndex}.png`
+    : `${import.meta.env.BASE_URL}monster/${stage.key}-idle-${frameIndex}.png`
+  const mirror = !usingDirectionalWalk && facing === 'left'
+
   return (
     <div className={`relative ${className ?? ''}`}>
-      <img src={src} alt="" className="h-full w-full object-contain" style={{ filter: CARE_FILTER[careTier] }} />
+      <img
+        src={src}
+        alt=""
+        className="h-full w-full object-contain"
+        style={{ filter: CARE_FILTER[careTier], transform: mirror ? 'scaleX(-1)' : undefined }}
+      />
       {careTier === 'neglected' && <span className="absolute -top-1 -right-1 text-xs">💤</span>}
       {careTier === 'dedicated' && <span className="absolute -top-1 -right-1 text-xs">✨</span>}
     </div>

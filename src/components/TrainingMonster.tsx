@@ -15,7 +15,30 @@ const CARE_MESSAGES: Record<string, string> = {
 
 const PET_REACTIONS = ['ぷるん!', 'もっと鍛えて!', 'うれしい!', 'がんばるぞ!', 'きたえろ!', 'つよくなる!']
 
+// Wander cycle: walk to one side, pause to idle-fidget, walk back, pause again -
+// a slow patrol rather than a single continuous slide.
+const WALK_STEPS = 9
+const PAUSE_STEPS = 3
+const CYCLE = (WALK_STEPS + PAUSE_STEPS) * 2
 const TICK_MS = 450
+
+function wanderState(step: number) {
+  const leg = WALK_STEPS + PAUSE_STEPS
+  const local = step % CYCLE
+  if (local < WALK_STEPS) {
+    const progress = local / (WALK_STEPS - 1)
+    return { x: 8 + progress * 64, facing: 'right' as const, walking: true }
+  }
+  if (local < leg) {
+    return { x: 72, facing: 'right' as const, walking: false }
+  }
+  const s2 = local - leg
+  if (s2 < WALK_STEPS) {
+    const progress = s2 / (WALK_STEPS - 1)
+    return { x: 72 - progress * 64, facing: 'left' as const, walking: true }
+  }
+  return { x: 8, facing: 'left' as const, walking: false }
+}
 
 export default function TrainingMonster() {
   const [step, setStep] = useState(0)
@@ -46,20 +69,24 @@ export default function TrainingMonster() {
   const progress = next ? (fed - current.minFed) / (next.minFed - current.minFed) : 1
   const careTier = computeCareTier(feedings.map((f) => f.date))
 
+  // An egg can't wander - it just sits and idles in place.
+  const isEgg = current.level === 1
+  const wander = isEgg ? { x: 42, facing: 'right' as const, walking: false } : wanderState(step)
+
   async function feedMonster() {
     if (available <= 0) return
     await db.monsterState.put({ id: 1, fed: fed + available })
     await db.feedings.add({ date: today() })
 
     const id = Date.now() + Math.random()
-    setSparkles((prev) => [...prev, { id, x: 40 + Math.random() * 20 }])
+    setSparkles((prev) => [...prev, { id, x: wander.x - 5 + Math.random() * 10 }])
     window.setTimeout(() => setSparkles((prev) => prev.filter((s) => s.id !== id)), 900)
     setCelebrateKey((k) => k + 1)
   }
 
   function petMonster() {
     const id = Date.now() + Math.random()
-    const x = 40 + Math.random() * 20
+    const x = wander.x - 5 + Math.random() * 10
     setHearts((prev) => [...prev, { id, x }])
     window.setTimeout(() => setHearts((prev) => prev.filter((h) => h.id !== id)), 900)
 
@@ -76,12 +103,21 @@ export default function TrainingMonster() {
         type="button"
         onClick={petMonster}
         aria-label="モンスターを撫でる"
-        className="relative mb-4 flex h-28 w-full items-center justify-center overflow-hidden rounded-xl bg-surface-2 active:scale-[0.99]"
+        className="relative mb-4 h-28 w-full overflow-hidden rounded-xl bg-surface-2 active:scale-[0.99]"
       >
-        <div className="monster-bob">
-          <div key={squishKey} className={squishKey > 0 ? 'monster-squish' : undefined}>
-            <div key={celebrateKey} className={celebrateKey > 0 ? 'monster-celebrate' : undefined}>
-              <MonsterArt level={current.level} frame={step} careTier={careTier} className="h-20 w-20" />
+        <div className="monster-sprite" style={{ left: `${wander.x}%` }}>
+          <div className={wander.walking ? undefined : 'monster-bob'}>
+            <div key={squishKey} className={squishKey > 0 ? 'monster-squish' : undefined}>
+              <div key={celebrateKey} className={celebrateKey > 0 ? 'monster-celebrate' : undefined}>
+                <MonsterArt
+                  level={current.level}
+                  pose={wander.walking ? 'walk' : 'idle'}
+                  facing={wander.facing}
+                  frame={step}
+                  careTier={careTier}
+                  className="h-20 w-20"
+                />
+              </div>
             </div>
           </div>
         </div>
