@@ -16,28 +16,31 @@ const CARE_MESSAGES: Record<string, string> = {
 const PET_REACTIONS = ['ぷるん!', 'もっと鍛えて!', 'うれしい!', 'がんばるぞ!', 'きたえろ!', 'つよくなる!']
 
 // Wander cycle: walk to one side, pause to idle-fidget, walk back, pause again -
-// a slow patrol rather than a single continuous slide.
-const WALK_STEPS = 9
-const PAUSE_STEPS = 3
-const CYCLE = (WALK_STEPS + PAUSE_STEPS) * 2
-const TICK_MS = 450
+// a slow patrol rather than a single continuous slide. Each art stage has a
+// genuine 9-frame walk cycle, so the walking legs run through 3 full strides
+// while crossing the card instead of just alternating 2 frames.
+const STRIDE_FRAMES = 9
+const WALK_TICKS = STRIDE_FRAMES * 3
+const PAUSE_TICKS = 6
+const CYCLE = (WALK_TICKS + PAUSE_TICKS) * 2
+const TICK_MS = 130
 
 function wanderState(step: number) {
-  const leg = WALK_STEPS + PAUSE_STEPS
+  const leg = WALK_TICKS + PAUSE_TICKS
   const local = step % CYCLE
-  if (local < WALK_STEPS) {
-    const progress = local / (WALK_STEPS - 1)
-    return { x: 8 + progress * 64, facing: 'right' as const, walking: true }
+  if (local < WALK_TICKS) {
+    const progress = local / (WALK_TICKS - 1)
+    return { x: 8 + progress * 64, facing: 'right' as const, walking: true, walkFrame: local % STRIDE_FRAMES }
   }
   if (local < leg) {
-    return { x: 72, facing: 'right' as const, walking: false }
+    return { x: 72, facing: 'right' as const, walking: false, walkFrame: 0 }
   }
   const s2 = local - leg
-  if (s2 < WALK_STEPS) {
-    const progress = s2 / (WALK_STEPS - 1)
-    return { x: 72 - progress * 64, facing: 'left' as const, walking: true }
+  if (s2 < WALK_TICKS) {
+    const progress = s2 / (WALK_TICKS - 1)
+    return { x: 72 - progress * 64, facing: 'left' as const, walking: true, walkFrame: s2 % STRIDE_FRAMES }
   }
-  return { x: 8, facing: 'left' as const, walking: false }
+  return { x: 8, facing: 'left' as const, walking: false, walkFrame: 0 }
 }
 
 export default function TrainingMonster() {
@@ -71,7 +74,7 @@ export default function TrainingMonster() {
 
   // An egg can't wander - it just sits and idles in place.
   const isEgg = current.level === 1
-  const wander = isEgg ? { x: 42, facing: 'right' as const, walking: false } : wanderState(step)
+  const wander = isEgg ? { x: 42, facing: 'right' as const, walking: false, walkFrame: 0 } : wanderState(step)
 
   async function feedMonster() {
     if (available <= 0) return
@@ -114,7 +117,7 @@ export default function TrainingMonster() {
                   level={current.level}
                   pose={wander.walking ? 'walk' : 'idle'}
                   facing={wander.facing}
-                  frame={step}
+                  frame={wander.walking ? wander.walkFrame : step}
                   careTier={careTier}
                   className="h-20 w-20"
                 />

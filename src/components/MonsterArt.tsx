@@ -29,15 +29,14 @@ export default function MonsterArt({
 }) {
   const stage = MONSTER_STAGES.find((s) => s.level === level) ?? MONSTER_STAGES[0]
   const idleFrameIndex = (frame % 2) + 1
+  const walkFrameIndex = (frame % 9) + 1
 
-  // Only some stages have dedicated left/right walk art (a single pose per
-  // direction - the source sheet's extra "step" frames weren't consistently
-  // mirrored, so alternating them looked like the body flickered between
-  // facings). Everything else falls back to the direction-neutral idle art,
+  // Every non-egg stage has a genuine 9-frame walk cycle per direction.
+  // Everything else (egg) falls back to the direction-neutral idle art,
   // mirrored for "left".
   const usingDirectionalWalk = pose === 'walk' && stage.hasWalk
   const src = usingDirectionalWalk
-    ? `${import.meta.env.BASE_URL}monster/${stage.key}-walk-${facing}.png`
+    ? `${import.meta.env.BASE_URL}monster/${stage.key}-walkcycle-${facing}-${walkFrameIndex}.png`
     : `${import.meta.env.BASE_URL}monster/${stage.key}-idle-${idleFrameIndex}.png`
   const mirror = !usingDirectionalWalk && facing === 'left'
 

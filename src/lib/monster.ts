@@ -12,8 +12,8 @@ export const MONSTER_STAGES: MonsterStage[] = [
   { level: 2, key: 'baby', name: '幼年期', minFed: 300, hasWalk: true },
   { level: 3, key: 'growth', name: '成長期', minFed: 1200, hasWalk: true },
   { level: 4, key: 'mature', name: '成熟期', minFed: 4000, hasWalk: true },
-  { level: 5, key: 'final', name: '完全体', minFed: 10000, hasWalk: false },
-  { level: 6, key: 'ultimate', name: '究極体', minFed: 25000, hasWalk: false },
+  { level: 5, key: 'final', name: '完全体', minFed: 10000, hasWalk: true },
+  { level: 6, key: 'ultimate', name: '究極体', minFed: 25000, hasWalk: true },
 ]
 
 export function getMonsterStage(fed: number): { current: MonsterStage; next: MonsterStage | null } {
