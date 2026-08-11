@@ -1,19 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db'
-import { computeCareTier, computeEarnedFeed, computeStreak, getMonsterStage } from '../lib/monster'
+import { computeEarnedFeed, computeStreak, getMonsterStage } from '../lib/monster'
 import MonsterArt from './MonsterArt'
 
 function today() {
   return new Date().toISOString().slice(0, 10)
 }
-
-const CARE_MESSAGES: Record<string, string> = {
-  neglected: '💤 1週間以上お世話していません。餌をあげて元気にしてあげましょう',
-  dedicated: '💛 毎日お世話できています!',
-}
-
-const PET_REACTIONS = ['ぷるん!', 'もっと鍛えて!', 'うれしい!', 'がんばるぞ!', 'きたえろ!', 'つよくなる!']
 
 // Wander cycle: walk to one side, pause to idle-fidget, walk back, pause again -
 // a slow patrol rather than a single continuous slide. Each art stage has a
@@ -45,12 +38,8 @@ function wanderState(step: number) {
 
 export default function TrainingMonster() {
   const [step, setStep] = useState(0)
-  const [hearts, setHearts] = useState<{ id: number; x: number }[]>([])
   const [sparkles, setSparkles] = useState<{ id: number; x: number }[]>([])
-  const [squishKey, setSquishKey] = useState(0)
   const [celebrateKey, setCelebrateKey] = useState(0)
-  const [reaction, setReaction] = useState<string | null>(null)
-  const reactionTimeoutRef = useRef<number | undefined>(undefined)
 
   const allSets = useLiveQuery(() => db.sets.toArray(), [])
   const monsterState = useLiveQuery(() => db.monsterState.get(1), [])
@@ -70,7 +59,6 @@ export default function TrainingMonster() {
   const { current, next } = getMonsterStage(fed)
   const feedToNext = next ? next.minFed - fed : 0
   const progress = next ? (fed - current.minFed) / (next.minFed - current.minFed) : 1
-  const careTier = computeCareTier(feedings.map((f) => f.date))
 
   const wander = wanderState(step)
 
@@ -85,58 +73,25 @@ export default function TrainingMonster() {
     setCelebrateKey((k) => k + 1)
   }
 
-  function petMonster() {
-    const id = Date.now() + Math.random()
-    const x = wander.x - 5 + Math.random() * 10
-    setHearts((prev) => [...prev, { id, x }])
-    window.setTimeout(() => setHearts((prev) => prev.filter((h) => h.id !== id)), 900)
-
-    setSquishKey((k) => k + 1)
-
-    setReaction(PET_REACTIONS[Math.floor(Math.random() * PET_REACTIONS.length)])
-    window.clearTimeout(reactionTimeoutRef.current)
-    reactionTimeoutRef.current = window.setTimeout(() => setReaction(null), 1100)
-  }
-
   return (
     <div className="mb-4 rounded-2xl border border-white/5 bg-surface p-4">
-      <button
-        type="button"
-        onClick={petMonster}
-        aria-label="モンスターを撫でる"
-        className="relative mb-4 h-28 w-full overflow-hidden rounded-xl bg-surface-2 bg-cover bg-center active:scale-[0.99]"
+      <div
+        className="relative mb-4 h-28 w-full overflow-hidden rounded-xl bg-surface-2 bg-cover bg-center"
         style={{ backgroundImage: `url(${import.meta.env.BASE_URL}monster/bg-jungle.png)` }}
       >
         <div className="monster-sprite" style={{ left: `${wander.x}%` }}>
           <div className={wander.walking ? undefined : 'monster-bob'}>
-            <div key={squishKey} className={squishKey > 0 ? 'monster-squish' : undefined}>
-              <div key={celebrateKey} className={celebrateKey > 0 ? 'monster-celebrate' : undefined}>
-                <MonsterArt
-                  level={current.level}
-                  facing={wander.facing}
-                  frame={wander.walkFrame}
-                  careTier={careTier}
-                />
-              </div>
+            <div key={celebrateKey} className={celebrateKey > 0 ? 'monster-celebrate' : undefined}>
+              <MonsterArt level={current.level} facing={wander.facing} frame={wander.walkFrame} />
             </div>
           </div>
         </div>
-        {hearts.map((heart) => (
-          <span key={heart.id} className="monster-heart text-lg" style={{ left: `${heart.x}%` }}>
-            💗
-          </span>
-        ))}
         {sparkles.map((s) => (
           <span key={s.id} className="monster-sparkle text-lg" style={{ left: `${s.x}%` }}>
             ✨
           </span>
         ))}
-        {reaction && (
-          <span className="absolute top-2 left-1/2 -translate-x-1/2 rounded-full bg-canvas/80 px-2 py-1 text-xs font-bold text-white">
-            {reaction}
-          </span>
-        )}
-      </button>
+      </div>
 
       <div className="flex items-center justify-between gap-2">
         <p className="font-bold text-white">{current.name}</p>
@@ -146,10 +101,6 @@ export default function TrainingMonster() {
           </span>
         )}
       </div>
-
-      {CARE_MESSAGES[careTier] && (
-        <p className="mt-1 text-[11px] text-zinc-400">{CARE_MESSAGES[careTier]}</p>
-      )}
 
       {next ? (
         <>
